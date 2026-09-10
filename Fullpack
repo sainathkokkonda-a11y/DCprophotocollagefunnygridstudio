@@ -1,0 +1,552 @@
+<div class="pro-grid-card">
+  <div class="pro-card-header">
+    <h2>Pro Photo Collage & Funny Grid Studio</h2>
+    <p>Multi-Filters, Drag & Zoom, Creative Styles & Watermark</p>
+  </div>
+
+  <div class="pro-card-body">
+    <!-- 1. Upload Photos -->
+    <div class="pro-group">
+      <label>1. Select Photos (Up to 9 Photos)</label>
+      <input type="file" id="pro-file-input" accept="image/*" multiple onchange="handleImageUpload(event)" />
+    </div>
+
+    <!-- 2. Canvas & Layout Options -->
+    <div class="pro-controls-row">
+      <div class="pro-group">
+        <label for="pro-ratio">Canvas Size</label>
+        <select id="pro-ratio" onchange="renderCollage()">
+          <option value="1:1" selected>Square (1:1 Insta)</option>
+          <option value="9:16">Story / Reel (9:16)</option>
+          <option value="4:5">Portrait (4:5)</option>
+          <option value="16:9">Landscape (16:9)</option>
+        </select>
+      </div>
+
+      <div class="pro-group">
+        <label for="pro-layout">Grid & Funny Layouts</label>
+        <select id="pro-layout" onchange="renderCollage()">
+          <optgroup label="Standard Grids">
+            <option value="2-grid">2 Photos Grid</option>
+            <option value="3-grid">3 Photos Grid</option>
+            <option value="4-grid" selected>4 Photos Grid (2x2)</option>
+            <option value="6-grid">6 Photos Grid (2x3)</option>
+            <option value="9-grid">9 Photos Grid (3x3)</option>
+          </optgroup>
+          <optgroup label="Funny & Creative Styles">
+            <option value="polaroid-stack">Polaroid Card Stack</option>
+            <option value="heart-center">Heart Center Split</option>
+            <option value="circle-center">Circular Center Split</option>
+            <option value="comic-grid">Comic Book Grid</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
+
+    <!-- 3. Border Controls -->
+    <div class="pro-controls-row">
+      <div class="pro-group">
+        <label for="border-color">Border Color</label>
+        <input type="color" id="border-color" value="#ffffff" onchange="renderCollage()" />
+      </div>
+      <div class="pro-group">
+        <label for="border-gap">Gap Size</label>
+        <input type="range" id="border-gap" min="0" max="50" value="12" oninput="renderCollage()" />
+      </div>
+      <div class="pro-group">
+        <label for="corner-radius">Round Corner</label>
+        <input type="range" id="corner-radius" min="0" max="50" value="0" oninput="renderCollage()" />
+      </div>
+    </div>
+
+    <!-- 4. Photo Selection & Individual Adjustments -->
+    <div class="pro-adjust-box" id="adjust-controls" style="display:none;">
+      <label class="section-label">Adjust Selected Photo</label>
+      
+      <div class="pro-controls-row">
+        <div class="pro-group">
+          <label for="active-photo">Active Photo</label>
+          <select id="active-photo" onchange="onActivePhotoChange()"></select>
+        </div>
+        <div class="pro-group">
+          <label>Zoom Level</label>
+          <div class="zoom-btn-row">
+            <button class="zoom-btn" onclick="adjustZoom(-0.1)">-</button>
+            <button class="zoom-btn" onclick="adjustZoom(0.1)">+</button>
+            <button class="zoom-btn reset-btn" onclick="resetActivePhoto()">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Advanced Image Filters -->
+      <div class="pro-controls-row" style="margin-top: 8px;">
+        <div class="pro-group">
+          <label for="filter-brightness">Brightness</label>
+          <input type="range" id="filter-brightness" min="50" max="150" value="100" oninput="updateActiveFilter()" />
+        </div>
+        <div class="pro-group">
+          <label for="filter-contrast">Contrast</label>
+          <input type="range" id="filter-contrast" min="50" max="150" value="100" oninput="updateActiveFilter()" />
+        </div>
+      </div>
+
+      <div class="pro-controls-row">
+        <div class="pro-group">
+          <label for="filter-grayscale">Grayscale</label>
+          <input type="range" id="filter-grayscale" min="0" max="100" value="0" oninput="updateActiveFilter()" />
+        </div>
+        <div class="pro-group">
+          <label for="filter-sepia">Sepia</label>
+          <input type="range" id="filter-sepia" min="0" max="100" value="0" oninput="updateActiveFilter()" />
+        </div>
+        <div class="pro-group">
+          <label for="filter-blur">Blur</label>
+          <input type="range" id="filter-blur" min="0" max="10" value="0" oninput="updateActiveFilter()" />
+        </div>
+      </div>
+      
+      <p class="drag-hint">Tap any photo in preview below & drag with finger to move it.</p>
+    </div>
+
+    <!-- 5. Watermark Section -->
+    <div class="pro-group">
+      <label for="watermark-text">Watermark / Custom Text</label>
+      <input type="text" id="watermark-text" placeholder="e.g. @username / My Memories" oninput="renderCollage()" />
+    </div>
+
+    <!-- 6. Preview & Download -->
+    <div class="pro-preview-section" id="preview-section" style="display:none;">
+      <div class="canvas-container">
+        <canvas id="pro-canvas"></canvas>
+      </div>
+      <button class="pro-download-btn" onclick="downloadCollage()">Download High-Resolution Image</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  * { box-sizing: border-box; }
+  .pro-grid-card { width: 100%; max-width: 500px; margin: 15px auto; background: #ffffff; border: 2px solid #1565c0; border-radius: 12px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; box-shadow: 0 4px 15px rgba(0,0,0,0.12); overflow: hidden; }
+  .pro-card-header { background: #1565c0; color: #ffffff; padding: 15px; text-align: center; }
+  .pro-card-header h2 { margin: 0; font-size: 18px; color: #fff !important; }
+  .pro-card-header p { margin: 4px 0 0; font-size: 11px; opacity: 0.9; color: #fff !important; }
+  .pro-card-body { padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+  
+  .pro-group { display: flex; flex-direction: column; flex: 1; width: 100%; }
+  .pro-group label, .section-label { font-size: 11px; font-weight: bold; color: #1565c0; margin-bottom: 4px; text-transform: uppercase; }
+  .pro-group input[type="file"], .pro-group select, .pro-group input[type="text"] { width: 100%; padding: 10px; border: 1.5px solid #b3e5fc; border-radius: 6px; font-size: 13px; color: #0d47a1; background: #fff; outline: none; }
+  
+  .pro-controls-row { display: flex; gap: 8px; width: 100%; }
+  .pro-controls-row input[type="color"] { height: 38px; border: 1.5px solid #b3e5fc; border-radius: 6px; padding: 2px; width: 100%; cursor: pointer; }
+  .pro-controls-row input[type="range"] { accent-color: #1565c0; margin-top: 6px; width: 100%; }
+
+  .pro-adjust-box { background: #e3f2fd; border: 1px dashed #1565c0; padding: 12px; border-radius: 8px; }
+  .zoom-btn-row { display: flex; gap: 6px; }
+  .zoom-btn { flex: 1; background: #1565c0; color: #fff; border: none; padding: 8px; border-radius: 4px; font-weight: bold; font-size: 14px; cursor: pointer; }
+  .reset-btn { background: #d32f2f; }
+  .drag-hint { font-size: 11px; color: #0d47a1; margin: 8px 0 0; text-align: center; font-weight: bold; }
+
+  .pro-preview-section { background: #f5f5f5; border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; }
+  .canvas-container { width: 100%; max-width: 100%; margin: 0 auto 10px; overflow: hidden; background: #fff; border-radius: 6px; touch-action: none; }
+  #pro-canvas { width: 100% !important; height: auto !important; display: block; cursor: grab; }
+  #pro-canvas:active { cursor: grabbing; }
+
+  .pro-download-btn { width: 100%; background: #2e7d32; color: #fff; border: none; padding: 12px; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; }
+  
+  @media (max-width: 480px) {
+    .pro-controls-row { flex-direction: column; gap: 8px; }
+  }
+</style>
+
+<script>
+  let images = [];
+  let activeIndex = 0;
+  const canvas = document.getElementById('pro-canvas');
+  const ctx = canvas.getContext('2d');
+
+  let isDragging = false;
+  let startX, startY;
+  let layoutSlots = [];
+
+  function handleImageUpload(e) {
+    const files = Array.from(e.target.files).slice(0, 9);
+    if (files.length === 0) return;
+
+    images = [];
+    const photoSelect = document.getElementById('active-photo');
+    photoSelect.innerHTML = '';
+
+    let loaded = 0;
+    files.forEach((file, idx) => {
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const img = new Image();
+        img.onload = function() {
+          images[idx] = {
+            img: img,
+            offsetX: 0,
+            offsetY: 0,
+            zoom: 1,
+            brightness: 100,
+            contrast: 100,
+            grayscale: 0,
+            sepia: 0,
+            blur: 0
+          };
+          loaded++;
+
+          const opt = document.createElement('option');
+          opt.value = idx;
+          opt.textContent = `Photo ${idx + 1}`;
+          photoSelect.appendChild(opt);
+
+          if (loaded === files.length) {
+            document.getElementById('preview-section').style.display = 'block';
+            document.getElementById('adjust-controls').style.display = 'block';
+            activeIndex = 0;
+            syncControlsWithActivePhoto();
+            renderCollage();
+          }
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderCollage() {
+    if (images.length === 0) return;
+
+    const ratio = document.getElementById('pro-ratio').value;
+    const layout = document.getElementById('pro-layout').value;
+    const gap = parseInt(document.getElementById('border-gap').value);
+    const radius = parseInt(document.getElementById('corner-radius').value);
+    const borderColor = document.getElementById('border-color').value;
+
+    let w = 1200, h = 1200;
+    if (ratio === '9:16') h = 2133;
+    else if (ratio === '4:5') h = 1500;
+    else if (ratio === '16:9') h = 675;
+
+    canvas.width = w;
+    canvas.height = h;
+
+    ctx.fillStyle = borderColor;
+    ctx.fillRect(0, 0, w, h);
+
+    layoutSlots = getLayoutSlots(layout, w, h, gap);
+
+    // Special Creative Layout Renders
+    if (layout === 'polaroid-stack') {
+      drawPolaroidStackLayout(w, h, borderColor);
+    } 
+    else if (layout === 'heart-center') {
+      drawCenterShapeLayout(w, h, gap, radius, 'heart');
+    }
+    else if (layout === 'circle-center') {
+      drawCenterShapeLayout(w, h, gap, radius, 'circle');
+    }
+    else {
+      // Standard Grids & Comic
+      layoutSlots.forEach((slot, i) => {
+        if (images[i]) {
+          drawInteractiveImage(images[i], slot.x, slot.y, slot.w, slot.h, radius, i === activeIndex);
+        }
+      });
+    }
+
+    renderWatermark(w, h);
+  }
+
+  function getLayoutSlots(layout, w, h, gap) {
+    let slots = [];
+    if (layout === '2-grid') {
+      let hw = (w - gap) / 2;
+      slots = [{x: 0, y: 0, w: hw, h: h}, {x: hw + gap, y: 0, w: hw, h: h}];
+    } else if (layout === '3-grid') {
+      let hw = (w - gap) / 2, hh = (h - gap) / 2;
+      slots = [{x: 0, y: 0, w: hw, h: h}, {x: hw + gap, y: 0, w: hw, h: hh}, {x: hw + gap, y: hh + gap, w: hw, h: hh}];
+    } else if (layout === '4-grid') {
+      let hw = (w - gap) / 2, hh = (h - gap) / 2;
+      slots = [
+        {x: 0, y: 0, w: hw, h: hh}, {x: hw + gap, y: 0, w: hw, h: hh},
+        {x: 0, y: hh + gap, w: hw, h: hh}, {x: hw + gap, y: hh + gap, w: hw, h: hh}
+      ];
+    } else if (layout === '6-grid') {
+      let cw = (w - 2 * gap) / 3, ch = (h - gap) / 2;
+      for (let r = 0; r < 2; r++) {
+        for (let c = 0; c < 3; c++) {
+          slots.push({x: c * (cw + gap), y: r * (ch + gap), w: cw, h: ch});
+        }
+      }
+    } else if (layout === '9-grid') {
+      let cw = (w - 2 * gap) / 3, ch = (h - 2 * gap) / 3;
+      for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+          slots.push({x: c * (cw + gap), y: r * (ch + gap), w: cw, h: ch});
+        }
+      }
+    } else if (layout === 'comic-grid') {
+      let w1 = (w - gap) * 0.6, w2 = (w - gap) * 0.4;
+      let h1 = (h - gap) * 0.5;
+      slots = [
+        {x: 0, y: 0, w: w1, h: h1},
+        {x: w1 + gap, y: 0, w: w2, h: h},
+        {x: 0, y: h1 + gap, w: w1, h: h1}
+      ];
+    } else if (layout === 'heart-center' || layout === 'circle-center' || layout === 'polaroid-stack') {
+      let hw = (w - gap) / 2, hh = (h - gap) / 2;
+      slots = [
+        {x: 0, y: 0, w: hw, h: hh}, {x: hw + gap, y: 0, w: hw, h: hh},
+        {x: 0, y: hh + gap, w: hw, h: hh}, {x: hw + gap, y: hh + gap, w: hw, h: hh}
+      ];
+    }
+    return slots;
+  }
+
+  function drawInteractiveImage(item, x, y, width, height, r, isActive) {
+    ctx.save();
+    ctx.filter = `brightness(${item.brightness}%) contrast(${item.contrast}%) grayscale(${item.grayscale}%) sepia(${item.sepia}%) blur(${item.blur}px)`;
+
+    if (r > 0) {
+      ctx.beginPath();
+      ctx.roundRect(x, y, width, height, r);
+      ctx.clip();
+    }
+
+    const img = item.img;
+    const zoom = item.zoom;
+    const imgRatio = img.width / img.height;
+    const targetRatio = width / height;
+
+    let sw, sh;
+    if (imgRatio > targetRatio) {
+      sh = img.height / zoom;
+      sw = (img.height * targetRatio) / zoom;
+    } else {
+      sw = img.width / zoom;
+      sh = (img.width / targetRatio) / zoom;
+    }
+
+    let sx = (img.width - sw) / 2 + item.offsetX;
+    let sy = (img.height - sh) / 2 + item.offsetY;
+
+    ctx.drawImage(img, sx, sy, sw, sh, x, y, width, height);
+    ctx.restore();
+
+    if (isActive) {
+      ctx.save();
+      ctx.lineWidth = 8;
+      ctx.strokeStyle = '#1565c0';
+      ctx.strokeRect(x, y, width, height);
+      ctx.restore();
+    }
+  }
+
+  // Render Polaroid Stack Style
+  function drawPolaroidStackLayout(w, h, bgColor) {
+    const cardW = w * 0.42;
+    const cardH = h * 0.45;
+    const pos = [
+      { x: w * 0.05, y: h * 0.04, angle: -0.06 },
+      { x: w * 0.52, y: h * 0.04, angle: 0.06 },
+      { x: w * 0.05, y: h * 0.5, angle: 0.05 },
+      { x: w * 0.52, y: h * 0.5, angle: -0.05 }
+    ];
+
+    images.forEach((item, i) => {
+      if (i > 3) return;
+      const p = pos[i];
+
+      ctx.save();
+      ctx.translate(p.x + cardW / 2, p.y + cardH / 2);
+      ctx.rotate(p.angle);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = 'rgba(0,0,0,0.25)';
+      ctx.shadowBlur = 12;
+      ctx.fillRect(-cardW / 2, -cardH / 2, cardW, cardH);
+
+      ctx.shadowColor = 'transparent';
+      drawInteractiveImage(item, -cardW / 2 + 15, -cardH / 2 + 15, cardW - 30, cardH - 80, 0, i === activeIndex);
+
+      ctx.restore();
+    });
+  }
+
+  // Render Heart & Circle Center Layouts
+  function drawCenterShapeLayout(w, h, gap, r, shapeType) {
+    // Background 4 Grid
+    const hw = (w - gap) / 2;
+    const hh = (h - gap) / 2;
+    const baseSlots = [
+      {x: 0, y: 0, w: hw, h: hh}, {x: hw + gap, y: 0, w: hw, h: hh},
+      {x: 0, y: hh + gap, w: hw, h: hh}, {x: hw + gap, y: hh + gap, w: hw, h: hh}
+    ];
+
+    baseSlots.forEach((slot, i) => {
+      if (images[i]) {
+        drawInteractiveImage(images[i], slot.x, slot.y, slot.w, slot.h, r, i === activeIndex);
+      }
+    });
+
+    // Center Mask Overlay
+    if (images[0]) {
+      const centerImg = images[0];
+      const size = Math.min(w, h) * 0.4;
+      const cx = w / 2;
+      const cy = h / 2;
+
+      ctx.save();
+      ctx.beginPath();
+
+      if (shapeType === 'circle') {
+        ctx.arc(cx, cy, size / 2, 0, Math.PI * 2);
+      } else if (shapeType === 'heart') {
+        let topCurveHeight = size * 0.3;
+        ctx.moveTo(cx, cy + size * 0.35);
+        ctx.bezierCurveTo(cx, cy + size * 0.3, cx - size * 0.5, cy, cx - size * 0.5, cy - topCurveHeight);
+        ctx.bezierCurveTo(cx - size * 0.5, cy - size * 0.5, cx, cy - size * 0.5, cx, cy - topCurveHeight + 20);
+        ctx.bezierCurveTo(cx, cy - size * 0.5, cx + size * 0.5, cy - size * 0.5, cx + size * 0.5, cy - topCurveHeight);
+        ctx.bezierCurveTo(cx + size * 0.5, cy, cx, cy + size * 0.3, cx, cy + size * 0.35);
+      }
+
+      ctx.closePath();
+      ctx.lineWidth = 12;
+      ctx.strokeStyle = document.getElementById('border-color').value;
+      ctx.stroke();
+      ctx.clip();
+
+      drawInteractiveImage(centerImg, cx - size / 2, cy - size / 2, size, size, 0, activeIndex === 0);
+      ctx.restore();
+    }
+  }
+
+  function syncControlsWithActivePhoto() {
+    const item = images[activeIndex];
+    if (!item) return;
+    document.getElementById('active-photo').value = activeIndex;
+    document.getElementById('filter-brightness').value = item.brightness;
+    document.getElementById('filter-contrast').value = item.contrast;
+    document.getElementById('filter-grayscale').value = item.grayscale;
+    document.getElementById('filter-sepia').value = item.sepia;
+    document.getElementById('filter-blur').value = item.blur;
+  }
+
+  function onActivePhotoChange() {
+    activeIndex = parseInt(document.getElementById('active-photo').value);
+    syncControlsWithActivePhoto();
+    renderCollage();
+  }
+
+  function updateActiveFilter() {
+    const item = images[activeIndex];
+    if (!item) return;
+    item.brightness = document.getElementById('filter-brightness').value;
+    item.contrast = document.getElementById('filter-contrast').value;
+    item.grayscale = document.getElementById('filter-grayscale').value;
+    item.sepia = document.getElementById('filter-sepia').value;
+    item.blur = document.getElementById('filter-blur').value;
+    renderCollage();
+  }
+
+  function adjustZoom(amount) {
+    const item = images[activeIndex];
+    if (!item) return;
+    item.zoom = Math.max(0.5, Math.min(3.0, item.zoom + amount));
+    renderCollage();
+  }
+
+  function resetActivePhoto() {
+    const item = images[activeIndex];
+    if (!item) return;
+    item.offsetX = 0;
+    item.offsetY = 0;
+    item.zoom = 1;
+    item.brightness = 100;
+    item.contrast = 100;
+    item.grayscale = 0;
+    item.sepia = 0;
+    item.blur = 0;
+    syncControlsWithActivePhoto();
+    renderCollage();
+  }
+
+  function getCanvasPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
+    };
+  }
+
+  function startDrag(e) {
+    const p = getCanvasPos(e);
+    
+    layoutSlots.forEach((slot, idx) => {
+      if (p.x >= slot.x && p.x <= slot.x + slot.w && p.y >= slot.y && p.y <= slot.y + slot.h) {
+        if (images[idx]) {
+          activeIndex = idx;
+          syncControlsWithActivePhoto();
+        }
+      }
+    });
+
+    isDragging = true;
+    startX = p.x;
+    startY = p.y;
+    renderCollage();
+  }
+
+  function moveDrag(e) {
+    if (!isDragging) return;
+    const p = getCanvasPos(e);
+    const dx = (p.x - startX);
+    const dy = (p.y - startY);
+
+    const item = images[activeIndex];
+    if (item) {
+      item.offsetX -= dx * 0.8;
+      item.offsetY -= dy * 0.8;
+      renderCollage();
+    }
+    startX = p.x;
+    startY = p.y;
+  }
+
+  function stopDrag() { isDragging = false; }
+
+  canvas.addEventListener('mousedown', startDrag);
+  canvas.addEventListener('mousemove', moveDrag);
+  canvas.addEventListener('mouseup', stopDrag);
+
+  canvas.addEventListener('touchstart', startDrag);
+  canvas.addEventListener('touchmove', moveDrag);
+  canvas.addEventListener('touchend', stopDrag);
+
+  function renderWatermark(w, h) {
+    const text = document.getElementById('watermark-text').value.trim();
+    if (!text) return;
+    ctx.save();
+    ctx.font = 'bold 36px Arial, sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowBlur = 6;
+    ctx.textAlign = 'right';
+    ctx.fillText(text, w - 30, h - 30);
+    ctx.restore();
+  }
+
+  function downloadCollage() {
+    const link = document.createElement('a');
+    link.download = 'pro_photo_collage.jpg';
+    link.href = canvas.toDataURL('image/jpeg', 0.95);
+    link.click();
+  }
+</script>
