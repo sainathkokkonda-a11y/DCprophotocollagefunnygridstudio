@@ -1,0 +1,125 @@
+<div class="pro-grid-card">
+  <div class="pro-card-header">
+    <h2>Pro Photo Collage & Funny Grid Studio</h2>
+    <p>Multi-Filters, Drag & Zoom, Creative Styles & Watermark</p>
+  </div>
+
+  <div class="pro-card-body">
+    <!-- 1. Upload Photos -->
+    <div class="pro-group">
+      <label>1. Select Photos (Up to 9 Photos)</label>
+      <input type="file" id="pro-file-input" accept="image/*" multiple onchange="handleImageUpload(event)" />
+    </div>
+
+    <!-- 2. Canvas & Layout Options -->
+    <div class="pro-controls-row">
+      <div class="pro-group">
+        <label for="pro-ratio">Canvas Size</label>
+        <select id="pro-ratio" onchange="renderCollage()">
+          <option value="1:1" selected>Square (1:1 Insta)</option>
+          <option value="9:16">Story / Reel (9:16)</option>
+          <option value="4:5">Portrait (4:5)</option>
+          <option value="16:9">Landscape (16:9)</option>
+        </select>
+      </div>
+
+      <div class="pro-group">
+        <label for="pro-layout">Grid & Funny Layouts</label>
+        <select id="pro-layout" onchange="renderCollage()">
+          <optgroup label="Standard Grids">
+            <option value="2-grid">2 Photos Grid</option>
+            <option value="3-grid">3 Photos Grid</option>
+            <option value="4-grid" selected>4 Photos Grid (2x2)</option>
+            <option value="6-grid">6 Photos Grid (2x3)</option>
+            <option value="9-grid">9 Photos Grid (3x3)</option>
+          </optgroup>
+          <optgroup label="Funny & Creative Styles">
+            <option value="polaroid-stack">Polaroid Card Stack</option>
+            <option value="heart-center">Heart Center Split</option>
+            <option value="circle-center">Circular Center Split</option>
+            <option value="comic-grid">Comic Book Grid</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
+
+    <!-- 3. Border Controls -->
+    <div class="pro-controls-row">
+      <div class="pro-group">
+        <label for="border-color">Border Color</label>
+        <input type="color" id="border-color" value="#ffffff" onchange="renderCollage()" />
+      </div>
+      <div class="pro-group">
+        <label for="border-gap">Gap Size</label>
+        <input type="range" id="border-gap" min="0" max="50" value="12" oninput="renderCollage()" />
+      </div>
+      <div class="pro-group">
+        <label for="corner-radius">Round Corner</label>
+        <input type="range" id="corner-radius" min="0" max="50" value="0" oninput="renderCollage()" />
+      </div>
+    </div>
+
+    <!-- 4. Photo Selection & Individual Adjustments -->
+    <div class="pro-adjust-box" id="adjust-controls" style="display:none;">
+      <label class="section-label">Adjust Selected Photo</label>
+      
+      <div class="pro-controls-row">
+        <div class="pro-group">
+          <label for="active-photo">Active Photo</label>
+          <select id="active-photo" onchange="onActivePhotoChange()"></select>
+        </div>
+        <div class="pro-group">
+          <label>Zoom Level</label>
+          <div class="zoom-btn-row">
+            <button class="zoom-btn" onclick="adjustZoom(-0.1)">-</button>
+            <button class="zoom-btn" onclick="adjustZoom(0.1)">+</button>
+            <button class="zoom-btn reset-btn" onclick="resetActivePhoto()">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Advanced Image Filters -->
+      <div class="pro-controls-row" style="margin-top: 8px;">
+        <div class="pro-group">
+          <label for="filter-brightness">Brightness</label>
+          <input type="range" id="filter-brightness" min="50" max="150" value="100" oninput="updateActiveFilter()" />
+        </div>
+        <div class="pro-group">
+          <label for="filter-contrast">Contrast</label>
+          <input type="range" id="filter-contrast" min="50" max="150" value="100" oninput="updateActiveFilter()" />
+        </div>
+      </div>
+
+      <div class="pro-controls-row">
+        <div class="pro-group">
+          <label for="filter-grayscale">Grayscale</label>
+          <input type="range" id="filter-grayscale" min="0" max="100" value="0" oninput="updateActiveFilter()" />
+        </div>
+        <div class="pro-group">
+          <label for="filter-sepia">Sepia</label>
+          <input type="range" id="filter-sepia" min="0" max="100" value="0" oninput="updateActiveFilter()" />
+        </div>
+        <div class="pro-group">
+          <label for="filter-blur">Blur</label>
+          <input type="range" id="filter-blur" min="0" max="10" value="0" oninput="updateActiveFilter()" />
+        </div>
+      </div>
+      
+      <p class="drag-hint">Tap any photo in preview below & drag with finger to move it.</p>
+    </div>
+
+    <!-- 5. Watermark Section -->
+    <div class="pro-group">
+      <label for="watermark-text">Watermark / Custom Text</label>
+      <input type="text" id="watermark-text" placeholder="e.g. @username / My Memories" oninput="renderCollage()" />
+    </div>
+
+    <!-- 6. Preview & Download -->
+    <div class="pro-preview-section" id="preview-section" style="display:none;">
+      <div class="canvas-container">
+        <canvas id="pro-canvas"></canvas>
+      </div>
+      <button class="pro-download-btn" onclick="downloadCollage()">Download High-Resolution Image</button>
+    </div>
+  </div>
+</div>
